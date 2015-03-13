@@ -45,6 +45,12 @@ instance Monoid OBJFile where
   mempty = OBJFile Nothing []
   OBJFile m1 f1 `mappend` OBJFile m2 f2 = OBJFile (getLast $ Last m1 <> Last m2) (f1 <> f2)
 
+tryParseOBJFile :: Text -> Either String OBJFile
+tryParseOBJFile = parseOnly parseOBJFile
+
+parseOBJFile :: Parser OBJFile
+parseOBJFile = parseOBJLines >>= lineToOBJFile
+
 lineToOBJFile :: Line -> Parser OBJFile
 lineToOBJFile (Line m vs vns vts frs) = do
   let va = listArray (1, length vs) vs
