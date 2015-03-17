@@ -53,15 +53,17 @@ parseOBJFile = parseOBJLines >>= lineToOBJFile
 
 lineToOBJFile :: Line -> Parser OBJFile
 lineToOBJFile (Line m vs vns vts frs) = do
-  let va = listArray (1, length vs) vs
-  let vna = listArray (1, length vns) vns
-  let vta = listArray (1, length vts) vts
-  fs <- forM frs $ \(FaceRef v1 vn1 vt1 v2 vn2 vt2 v3 vn3 vt3) ->
-    Face <$> ((,,) <$> la va v1 <*> la vna vn1 <*> la vta vt1)
-         <*> ((,,) <$> la va v2 <*> la vna vn2 <*> la vta vt2)
-         <*> ((,,) <$> la va v3 <*> la vna vn3 <*> la vta vt3)
+  fs <- forM frs $ \(FaceRef v1 vt1 vn1 v2 vt2 vn2 v3 vt3 vn3) ->
+    Face <$> ((,,) <$> lav v1 <*> lavn vn1 <*> lavt vt1)
+         <*> ((,,) <$> lav v2 <*> lavn vn2 <*> lavt vt2)
+         <*> ((,,) <$> lav v3 <*> lavn vn3 <*> lavt vt3)
   return $ OBJFile m fs
-  where la = lookupArray
+  where lav = lookupArray va
+        lavn = lookupArray vna
+        lavt = lookupArray vta
+        va = listArray (1, length vs) vs
+        vna = listArray (1, length vns) vns
+        vta = listArray (1, length vts) vts
 
 parseMTLFile :: Parser (Maybe FilePath)
 parseMTLFile = choice
