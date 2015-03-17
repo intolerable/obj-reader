@@ -66,7 +66,7 @@ lineToOBJFile (Line m vs vns vts frs) = do
 parseMTLFile :: Parser (Maybe FilePath)
 parseMTLFile = choice
   [ Just <$> Text.unpack <$> (ss "map_Kd" *> ss (takeTill isEndOfLine))
-  , ss (takeTill isEndOfLine) *> pure Nothing ]
+  , takeTill isEndOfLine *> endOfLine *> pure Nothing ]
 
 lookupArray :: Ix i => Array i e -> i -> Parser e
 lookupArray a i =
@@ -85,8 +85,7 @@ parseLine = choice
   , parseMTL
   , parseFaceRef
   , parseComment
-  , "\n" *> pure mempty
-  , ss "usemtl" *> ss (takeTill isEndOfLine) *> pure mempty ]
+  , takeTill isEndOfLine *> endOfLine *> pure mempty ]
 
 parseThing :: (Double -> Double -> Double -> a) -> (a -> Line) -> Parser Text -> Parser Line
 parseThing f g c = fmap g $ f <$> (ss c *> ss double) <*> ss double <*> ss double
